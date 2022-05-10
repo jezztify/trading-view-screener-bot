@@ -1,0 +1,7 @@
+version: "3"
+services:
+  app:
+    build: .
+    command: node build/main.js
+    environment:
+      - BOT_TOKEN=OTcyMzM4NjI5MTM5NjYwODYx.YnXm6g.Uir4C2cF05DW3MVGDNzHxIdA0nw
