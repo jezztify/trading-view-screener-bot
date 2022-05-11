@@ -1,26 +1,33 @@
-import { CommandInteraction } from "discord.js";
+import { CommandInteraction, MessageEmbed } from "discord.js";
 import { Discord, Slash, SlashChoice, SlashOption } from "discordx";
-import fetch from 'node-fetch';
+import fetch from "node-fetch";
+import log4js from "log4js";
+
+const log = log4js.getLogger("SCREENER");
+log.level = "debug";
+log.info("LOGGER READY.");
 
 type screenerType = {
   name: string,
   request: JSON,
   interval: number,
   interaction?: CommandInteraction,
-  screener?: NodeJS.Timer | undefined
+  screener?: NodeJS.Timer | undefined,
+  timeout?: NodeJS.Timer | undefined
 }
-let screeners: screenerType[] = [];
-let timeouts: string[] = [];
 
-let matcherOperator: {[k:string]:string}= {
+const matcherOperator: {[k:string]:string}= {
   ">": "greater",
   ">=": "egreater",
   "==": "equal",
   "<=": "eless",
-  "<": "less"
+  "<": "less",
+  "Crosses Above": "crosses_above",
+  "Crosses Below": "crosses_below"
 }
 
-let timeframeValue: {[k:string]:string} = {
+const timeframeValue: {[k:string]:string} = {
+  "15m": "15",
   "30m": "30",
   "1h": "60",
   "1D": "1D"
@@ -31,6 +38,8 @@ class screener {
   settings: {[k: string]: any} = {
     discoveryTimeout: 600000
   }
+  screeners: screenerType[] = [];
+  timeouts: string[] = [];
 
   @Slash("add-screener", {description: "Screener methods"})
   async addScreener (  
@@ -42,7 +51,10 @@ class screener {
 
     @SlashOption("name", {description: "Name of the screener."})
     name: string,
-    
+
+    @SlashChoice({name: "SMA20", value:"SMA20"})
+    @SlashChoice({name: "SMA50", value:"SMA50"})
+    @SlashChoice({name: "SMA100", value:"SMA100"})
     @SlashChoice({name: "RSI", value:"RSI"})
     @SlashChoice({name: "change", value: "change"})
     @SlashOption("attribute", {description: "Screener attribute."})
@@ -53,12 +65,15 @@ class screener {
     @SlashChoice({name: "Equal", value: ">="})
     @SlashChoice({name: "Less Than or Equal", value: "<="})
     @SlashChoice({name: "Less Than", value: "<"})
+    @SlashChoice({name: "Crosses Above", value: "Crosses Above"})
+    @SlashChoice({name: "Crosses Below", value: "Crosses Below"})
     @SlashOption("matcher", {description: "matcher"})
     matcher: string,
 
-    @SlashOption("value", {description: "Screener attribute value."})
-    value: number,
+    @SlashOption("value", {description: "Screener attribute value. <Any Number | SMA20 | SMA50 | SMA100>"})
+    value: string | "SMA20" | "SMA50" | "SMA100",
     
+    @SlashChoice({name: "15m", value: "15"})
     @SlashChoice({name: "30m", value: "30"})
     @SlashChoice({name: "1h", value: "60"})
     @SlashChoice({name: "1D", value: "1D" })
@@ -78,15 +93,17 @@ class screener {
       key => timeframeValue[key] === timeframe
     );
     name = interaction.channel?.id + "." + name;
-    let screener = screeners.find(
+    let screener = this.screeners.find(
       obj => obj.name === name
     )
     if(screener) {
-      interaction.reply(`${name} is already used.`);
+      await interaction.reply(`${name} is already used.`);
       return
     }
-    console.log(`Adding new screener ${name} where ${attribute} is ${matcher} ${value} at ${timeframeText} timeframe] every ${interval}ms`);
+    log.info(`Adding new screener ${name} where ${attribute} is ${matcher} ${value} at ${timeframeText} timeframe every ${interval}ms`);
     let left = `${attribute}${timeframe==="1D"?"":"|" + timeframe}`;
+    let right = value.includes("SMA")?`${value}${timeframe==="1D"?"":"|" + timeframe}`: parseFloat(value);
+    
     let matchOperation = matcherOperator[matcher];
 
     let newRequest:any ={
@@ -130,37 +147,65 @@ class screener {
     newRequest.filter.push({
       left: left,
       operation: matchOperation,
-      right: value
+      right: right
     })
     newRequest.sort.sortBy = left;
     newRequest.columns.push(left);
-    screeners.push({
+    this.screeners.push({
       name: name,
       request: newRequest,
       interval: interval,
       interaction: interaction,
-      screener: undefined
+      screener: await this.setMonitor(name, newRequest, attribute, matcher, timeframe, interval, this.settings.discoveryTimeout)
     })
-    await setMonitor(name, interaction, newRequest, attribute, timeframe, matcher, interval, this.settings.discoveryTimeout);
-    await this.showScreeners(interaction, "last");
-    interaction.channel?.send(`Success.`);
+    await interaction.reply(`Screener added: ${name} - Success.`);
   }
 
   @Slash("remove-screener")
   async removeScreener (
     @SlashOption("name", {description: "Name of the screener."})
     name: string,
-    interaction:CommandInteraction
+    interaction: CommandInteraction
   ) {
-      let screener = screeners.find(
+      let screener = this.screeners.find(
         obj => obj.name === name
       )
       if(screener && screener.screener) {
         clearTimeout(screener.screener);
-        screeners.splice(screeners.indexOf(screener))
-        console.log(`Screener removed: ${JSON.stringify(screener, null, 2)}`);
+        this.screeners.splice(this.screeners.indexOf(screener))
+        log.info(`Screener removed: ${name}`);
       }
-      interaction.reply(`Success.`);
+      await interaction.reply(`Screener removed: ${name} - Success.`);
+  }
+
+  @Slash("show-timeouts")
+  async showTimeouts (
+    interaction: CommandInteraction
+  ) {
+    log.info(JSON.stringify(this.timeouts, null, 2));
+    await interaction.reply(`Timeouts logged - Success.`)
+  }
+
+  @Slash("stop-all")
+  async stopAll (
+    interaction: CommandInteraction
+  ) {
+    this.screeners.forEach(
+      (scr, index) => {
+        if(interaction.channel) {
+          if(scr.name.includes(interaction.channel.id)){
+            if(scr.screener) {
+              clearInterval(scr.screener);
+            }
+            if(scr.timeout){
+              clearTimeout(scr.timeout);
+            }
+            this.screeners.splice(index);
+          }
+        }
+      }
+    )
+    await interaction.reply(`All screeners stopped - Success.`)
   }
   
   @Slash("show-screeners", {description: "Show all screeners"})
@@ -169,18 +214,17 @@ class screener {
     show?: "last" | "all"
   ) {
     if(show === "last") {
-      let scr = screeners[screeners.length - 1];
+      let scr = this.screeners[this.screeners.length - 1];
       let msg = {
         name: scr.name,
         request: scr.request,
         interval: scr.interval
       }
-
-      interaction.channel?.send("```" + JSON.stringify(msg, null, 2) + "```");
+      log.info(JSON.stringify(msg, null, 2));
+      await interaction.channel?.send("```" + JSON.stringify(msg, null, 2) + "```");
     } else {
-
       let screenerList: screenerType[] = [];
-      screeners.forEach(
+      this.screeners.forEach(
         scr => {
           if(interaction.channel) {
             if(scr.name.includes(interaction?.channel?.id)) {
@@ -193,99 +237,125 @@ class screener {
           }
         }
       )
-      if(screenerList) {
+      if(screenerList.length > 0) {
+        await interaction.reply("Screener List");
         screenerList.forEach(
-          (scr, index)  => {
+          async (scr, index)  => {
             let msg = {
               name: scr.name,
               request: scr.request,
               interval: scr.interval
             }
-            interaction.channel?.send("```#" + (index + 1) + "\n" + JSON.stringify(msg, null, 2) + "```")
+            log.info(JSON.stringify(msg, null, 2))
+            await interaction.channel?.send("```#" + (index + 1) + "\n" + JSON.stringify(msg, null, 2) + "```")
           }
         )
-        interaction.reply("Screener List");
       } else {
         interaction.reply("No screeners yet.");
       }
     }
   }
-}
 
-const setMonitor = async (
-  name: string,
-  interaction: CommandInteraction,
-  newRequest:JSON, 
-  attribute:string, 
-  timeframe:string, 
-  matcher:string,
-  interval:number,
-  discoveryTimeout: number): Promise<any> => {
-
-  return setTimeout(
-    async () => {
-      await formReply(name, interaction, newRequest, attribute,timeframe,matcher,interval,discoveryTimeout)
-    },
-    interval
-  )
-
-}
-
-
-const formReply = async (
-  name: string,
-  interaction: CommandInteraction,
-  newRequest:JSON, 
-  attribute:string, 
-  timeframe:string, 
-  matcher:string,
-  interval: number,
-  discoveryTimeout: number): Promise<any> => {
-  let timeframeText = Object.keys(timeframeValue).find(key => timeframeValue[key] === timeframe);
-
-  let response = await fetch( 
-    `https://scanner.tradingview.com/crypto/scan`,
-    {
-      body: JSON.stringify(newRequest),
-      method: 'POST'
-    }
-  )
-  let resp = await response.json();
-  console.log(JSON.stringify(resp, null, 2));
-
-  for(let i in resp.data) {
-    let data = resp.data[i];
-    console.log(data);
-    let sign = "";
-    let percentSign = "";
-    if(["change"].includes(attribute)) {
-      percentSign = "%";
-    }
-    
-    let thisScreener = screeners.find(
-      obj => obj.name === name
+  async setMonitor (
+    name: string,
+    newRequest: Object, 
+    attribute:string, 
+    matcher: string,
+    timeframe:string, 
+    interval:number,
+    discoveryTimeout: number): Promise<NodeJS.Timer> {
+  
+    this.formReply(name,newRequest,attribute,matcher,timeframe,discoveryTimeout);
+    return setInterval(
+      this.formReply.bind(this),
+      interval,
+      name,newRequest,attribute,matcher,timeframe,discoveryTimeout
     )
-    let thisDataString = thisScreener?.interaction?.channel?.id + "." + data.s;
-    if(!timeouts.includes(thisDataString)) {
-      await thisScreener?.interaction?.channel?.send(`:exclamation: \`${data.s} ${attribute} reached ${data.d[2].toPrecision(2)}${percentSign} in the past ${timeframeText}\``);
-      console.log(`Adding timeout for ${thisDataString}`);
-      timeouts.push(thisDataString);
-      setTimeout(() => {
-        timeouts.splice(timeouts.indexOf(thisDataString));
-        console.log(`Removing timeout for ${thisDataString}`);
-      }, discoveryTimeout)
-    }
-  }   
+  }
 
-  let screener = screeners.find(
-    obj => obj.name === name
-  )
-  if(screener) {
-    let screenerIndex = screeners.indexOf(screener);
-    screeners[screenerIndex].screener = setTimeout( async () => {
-        await formReply(name, interaction, newRequest, attribute,timeframe,matcher,interval,discoveryTimeout)
-      },
-      interval
-    )
+  async formReply (
+    name: string,
+    newRequest: any, 
+    attribute:string, 
+    matcher:string,
+    timeframe:string, 
+    discoveryTimeout: number): Promise<void> {
+    let timeframeText = Object.keys(timeframeValue).find(key => timeframeValue[key] === timeframe);
+    let fetchResp, resp;
+    log.info(`Executing screener: ${name}`);
+    try {
+      log.debug(JSON.stringify(newRequest, null, 2));
+      fetchResp = await fetch( 
+        `https://scanner.tradingview.com/crypto/scan`,
+        {
+          body: JSON.stringify(newRequest),
+          method: "POST"
+        }
+      )
+      resp = await fetchResp.json();
+    } catch(e) {
+      log.error(`Failed to fetch data from trading view: ${e}`);
+      return
+    }
+
+    for(let i = 0; i < resp.data.length; i++) {
+      var data = resp.data[i];
+      console.log(data);
+      
+      var thisScreener = this.screeners.find(
+        obj => obj.name === name
+      )
+      if(!thisScreener) {
+        continue
+      }
+      let percentSign = "";
+      if(["change"].includes(attribute)) {
+        percentSign = "%";
+      }
+      var thisDataString = `${data.s}.${name}`;
+      if(!this.timeouts.includes(thisDataString)) {
+        this.timeouts.push(thisDataString);
+        this.screeners[this.screeners.indexOf(thisScreener)].timeout = setTimeout(
+          this.deleteTimeout.bind(this),
+          discoveryTimeout,
+          thisDataString, discoveryTimeout,thisScreener
+        );
+        let msg = "";
+        if(attribute.includes("SMA")) {
+          msg = `\`${attribute}\` ${matcher} \`${newRequest.filter[2].right}\` in the past \`${timeframeText}\``;
+        } else {
+          msg = `\`${attribute}\` reached \`${data.d[2].toPrecision(2)}${percentSign}\` in the past \`${timeframeText}\``;
+        }
+
+        let hyperlink = `[[TradingView](https://www.tradingview.com/chart?symbol=${data.d[0]})]`;
+        log.info(`Sending to ${thisScreener?.interaction?.channel?.id}: ${msg}`);
+        let embedMsg: MessageEmbed = new MessageEmbed()
+                      .setTitle(`:exclamation:${data.d[0]} [$${data.d[1]}]`)
+                      .setDescription(msg + "\n" + hyperlink)
+                      
+        await thisScreener.interaction?.channel?.send({embeds: [embedMsg]});
+        log.info(`Adding ${discoveryTimeout}ms timeout for ${thisDataString}`);
+      }
+    }
+  
+  }
+  
+  async clearTimeouts(
+    interaction: CommandInteraction
+  ): Promise<void> {
+    this.timeouts = [];
+    log.info(this.timeouts);
+    interaction.reply("Timeouts cleared - Success.")
+  }
+
+  async deleteTimeout(dataString:string, discoveryTimeout: number, thisScreener:screenerType): Promise<void> {
+    if(thisScreener.timeout) {
+      clearTimeout(thisScreener.timeout);
+    }
+
+    this.timeouts = this.timeouts.filter((value) => {
+      return !value.includes(dataString);
+    })
+    log.info(`Removing timeout for ${dataString} after ${discoveryTimeout}ms`);
   }
 }

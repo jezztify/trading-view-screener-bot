@@ -29,7 +29,8 @@
     "build:changelog": "npx @discordx/changelog --root=src",
     "dev": "node --loader ts-node/esm/transpile-only src/main.ts",
     "start": "nodemon --exec node --loader ts-node/esm/transpile-only src/main.ts",
-    "serve": "node build/main.js"
+    "serve": "node build/main.js",
+    "docker:deploy": "docker-compose build && docker-compose up -d"
   },
   "dependencies": {
     "@discordx/importer": "^1.1.2",
@@ -39,8 +40,10 @@
     "@koa/router": "^10.1.1",
     "discord.js": "^13.6.0",
     "discordx": "^9.5.0",
+    "docker": "^1.0.0",
     "koa": "^2.13.4",
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.1.13",
+    "log4js": "^6.4.6"
   },
   "devDependencies": {
     "@discordx/changelog": "^2.0.7",
