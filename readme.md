@@ -1,5 +1,7 @@
 # TRADING VIEW SCREENER BOT
 
+![TVSB](assets/Logo.png)
+
 ## Contact Details
 
 GitHub: https://github.com/jezztify
