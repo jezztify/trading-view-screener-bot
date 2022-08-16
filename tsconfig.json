@@ -1,4 +1,5 @@
 {
+  "extends":"./tsconfig.paths.json",
   "compilerOptions": {
     "module": "ESNext", // required
     "target": "ESNext", // required
@@ -14,5 +15,6 @@
     "moduleResolution": "Node", // required
     "esModuleInterop": true // required
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "indent":[true, "spaces", 2]
 }

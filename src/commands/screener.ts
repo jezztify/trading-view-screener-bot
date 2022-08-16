@@ -62,7 +62,7 @@ class screener {
 
     @SlashChoice({name: "Greater Than", value: ">"})
     @SlashChoice({name: "Greater Than or Equal", value: ">="})
-    @SlashChoice({name: "Equal", value: ">="})
+    @SlashChoice({name: "Equal", value: "="})
     @SlashChoice({name: "Less Than or Equal", value: "<="})
     @SlashChoice({name: "Less Than", value: "<"})
     @SlashChoice({name: "Crosses Above", value: "Crosses Above"})
@@ -101,12 +101,13 @@ class screener {
       return
     }
     log.info(`Adding new screener ${name} where ${attribute} is ${matcher} ${value} at ${timeframeText} timeframe every ${interval}ms`);
+    // FETCHING
     let left = `${attribute}${timeframe==="1D"?"":"|" + timeframe}`;
     let right = value.includes("SMA")?`${value}${timeframe==="1D"?"":"|" + timeframe}`: parseFloat(value);
     
     let matchOperation = matcherOperator[matcher];
 
-    let newRequest:any ={
+    let newRequest:any = {
       filter: [
         {
           left: "exchange",
@@ -139,10 +140,7 @@ class screener {
         sortBy: "name",
         sortOrder: "desc"
       },
-      range: [
-        0,
-        150
-      ]
+      range: [typeof Number]
     }
     newRequest.filter.push({
       left: left,

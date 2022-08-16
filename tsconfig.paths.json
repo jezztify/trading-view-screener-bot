@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@screener-utils/*": ["src/utils/*"],
+            "@screener-services/*": ["src/services/*"],
+            "@screener-types/*": ["src/types/*"]
+        }
+    }
+  }
