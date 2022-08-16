@@ -6,6 +6,15 @@ import type { Interaction, Message } from "discord.js";
 import { IntentsBitField } from "discord.js";
 import { Client } from "discordx";
 
+// THIS IS A HARDCODE SOLUTION
+// ISSUE IS STILL IN THE WORKS
+// https://discord.com/channels/874802018361950248/876369232084992010/1009027537780875334
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
+
 export const bot = new Client({
   // To only use global commands (use @Guild for specific guild command), comment this line
   botGuilds: [(client) => client.guilds.cache.map((guild) => guild.id)],
@@ -33,7 +42,12 @@ bot.once("ready", async () => {
   await bot.guilds.fetch();
 
   // Synchronize applications commands with Discord
-  await bot.initApplicationCommands();
+  await bot.initApplicationCommands(
+    {
+      guild: { log: true },
+      global: { log: true },
+    }
+  );
 
   // To clear all guild commands, uncomment this line,
   // This is useful when moving from guild commands to global commands
