@@ -36,7 +36,6 @@ class TvScreener implements iTvScreener {
     this.request = this.formRequest(
       parameters
     );
-
   }
 
   formRequest = (parameters: tScreenerParameters): tScreenerRequest => {
@@ -102,16 +101,16 @@ class TvScreener implements iTvScreener {
     
     // Fetch data
     try {
-      let resp = await (await fetch(
+      let fetchResp = await fetch(
         endpoint,
         {
           body: JSON.stringify(this.request),
           method: "POST"
         }
-      )).json()
-      
+      );
+      let resp = JSON.parse(await fetchResp.json());
       if(resp.totalCount > 0) {
-        this.responseData = resp.data
+        this.responseData = resp.data;
       }
 
     } catch(e){

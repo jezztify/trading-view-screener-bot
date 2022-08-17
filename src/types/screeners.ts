@@ -4,7 +4,7 @@ type tScreenerParameters = {
   name: string;
   market: markets;
   attribute: "SMA20" | "SMA50" | "SMA100" | "RSI" | "change";
-  matcher: ">" | ">=" | "=" | "<" | "<=" | "Crosses Above" | "Crosses Below" | "equal" | "match";
+  matcher: ">" | ">=" | "==" | "<" | "<=" | "Crosses Above" | "Crosses Below" | "equal" | "match";
   value: string;
   timeframe: "15" | "30" | "60" | "1D";
   interval: 10000 | 120000 | 300000 | 900000;

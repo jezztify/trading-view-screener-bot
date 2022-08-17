@@ -301,6 +301,8 @@ class screener {
         if(!thisScreener) {
           continue
         }
+
+        
         let percentSign = "";
         if(["change"].includes(attribute)) {
           percentSign = "%";

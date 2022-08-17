@@ -1,8 +1,9 @@
 {
-  "extends":"./tsconfig.paths.json",
   "compilerOptions": {
     "module": "ESNext", // required
     "target": "ESNext", // required
+    "types": ["node", "jest"],
+    "allowJs": true,
     "noImplicitAny": true,
     "sourceMap": true,
     "strict": true,
@@ -13,8 +14,21 @@
     "importHelpers": true, // required
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "Node", // required
-    "esModuleInterop": true // required
+    "esModuleInterop": true, // required
+    "baseUrl": ".",
+    "paths": {
+      "@screener-utils/*": ["src/utils/*"],
+      "@screener-services/*": ["src/services/*"],
+      "@screener-types/*": ["src/types/*"],
+      "@screener-config/*": ["src/config/*"],
+      "~/*": ["*"]
+    }
   },
-  "exclude": ["node_modules"],
+  "exclude": [
+    "**/*.test.*", 
+    "**/__mocks__/*", 
+    "**/__tests__/*",
+    "**/build/*"
+  ],
   "indent":[true, "spaces", 2]
 }
