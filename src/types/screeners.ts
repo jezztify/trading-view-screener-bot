@@ -39,8 +39,18 @@ type tScreenerRequest = {
     150
   ]
 }
+
+type tScreenerResponseData = {
+  s: string;
+  d: [
+    string,
+    number,
+    number
+  ]
+}[] | null
+
 export { 
   tScreenerParameters,
   tScreenerRequest,
-  tMatcherTypes
+  tScreenerResponseData
 }

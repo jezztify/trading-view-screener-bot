@@ -1,1 +1,1 @@
-export * from "../services/tvScreener"
+export * from "../services/tvScreenerService"

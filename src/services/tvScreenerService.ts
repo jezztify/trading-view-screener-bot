@@ -1,11 +1,15 @@
-import { tMatcherTypes, tScreenerParameters, tScreenerRequest } from "@screener-types/screeners"
+import { tvScreenerConfig } from "@screener-config/tvScreenerConfig";
+import { tScreenerResponseData, tScreenerParameters, tScreenerRequest } from "@screener-types/screeners"
 import fetch from "node-fetch";
+
+
 
 interface iTvScreener {
   parameters: tScreenerParameters;
   request: tScreenerRequest;
+  responseData: tScreenerResponseData;
   formRequest(parameters: tScreenerParameters): tScreenerRequest;
-  fetchData(): Promise<JSON>;
+  fetchData(): Promise<void>;
 }
 
 const matcherOperator: {[k:string]:string}= {
@@ -21,15 +25,22 @@ const matcherOperator: {[k:string]:string}= {
 class TvScreener implements iTvScreener {
   parameters: tScreenerParameters;
   request: tScreenerRequest;
+  responseData: tScreenerResponseData;
 
+  /**
+   * TODO: Add Logger object injection
+   */
   constructor(parameters: tScreenerParameters) {
+    this.responseData = null;
     this.parameters = parameters;
     this.request = this.formRequest(
       parameters
     );
+
   }
 
   formRequest = (parameters: tScreenerParameters): tScreenerRequest => {
+    // Initialize request body
     let request:tScreenerRequest = {
       filter: [],
       markets: [
@@ -57,7 +68,7 @@ class TvScreener implements iTvScreener {
       ]
     };
     
-    // filters
+    // Insert filters
     if(parameters.filters) {
       request.filter = [...parameters.filters]
     }
@@ -70,15 +81,43 @@ class TvScreener implements iTvScreener {
       operation: matchOperation,
       right: right
     })
-    request.sort.sortBy = left;
-    request.columns.push(left);
     
+    // Update sorting
+    request.sort.sortBy = left;
+    
+    // Insert additional expected columns
+    request.columns.push(left);  
+
 
     return request
   }
 
-  fetchData = () => {
+  fetchData = async () => {
+    // Get Webservice Endpoint
+    let endpointType = "global";
+    if(this.parameters.market === "forex" || this.parameters.market === "crypto") {
+      endpointType = this.parameters.market;
+    }
+    let endpoint = tvScreenerConfig.endpoints[endpointType];
     
+    // Fetch data
+    try {
+      let resp = await (await fetch(
+        endpoint,
+        {
+          body: JSON.stringify(this.request),
+          method: "POST"
+        }
+      )).json()
+      
+      if(resp.totalCount > 0) {
+        this.responseData = resp.data
+      }
+
+    } catch(e){
+      throw new Error(`An error occurred while fetching data from ${endpoint}: ${e}`);
+    }
+
   }
 }
 
