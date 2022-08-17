@@ -4,10 +4,10 @@ import fetch from "node-fetch";
 
 
 
-interface iTvScreener {
+interface iTvScreenerService {
   parameters: tScreenerParameters;
   request: tScreenerRequest;
-  responseData: tScreenerResponseData;
+  responseData: tScreenerResponseData[] | null;
   formRequest(parameters: tScreenerParameters): tScreenerRequest;
   fetchData(): Promise<void>;
 }
@@ -22,10 +22,10 @@ const matcherOperator: {[k:string]:string}= {
   "Crosses Below": "crosses_below"
 }
 
-class TvScreener implements iTvScreener {
+class TvScreenerService implements iTvScreenerService {
   parameters: tScreenerParameters;
   request: tScreenerRequest;
-  responseData: tScreenerResponseData;
+  responseData: tScreenerResponseData[] | null;
 
   /**
    * TODO: Add Logger object injection
@@ -68,9 +68,7 @@ class TvScreener implements iTvScreener {
     };
     
     // Insert filters
-    if(parameters.filters) {
-      request.filter = [...parameters.filters]
-    }
+    request.filter = [...parameters.filters]
     
     let left = `${parameters.attribute}${parameters.timeframe==="1D"?"":"|" + parameters.timeframe}`;
     let right = parameters.value.includes("SMA")?`${parameters.value}${parameters.timeframe==="1D"?"":"|" + parameters.timeframe}`: parseFloat(parameters.value);
@@ -121,5 +119,5 @@ class TvScreener implements iTvScreener {
 }
 
 export {
-  TvScreener
+  TvScreenerService
 }

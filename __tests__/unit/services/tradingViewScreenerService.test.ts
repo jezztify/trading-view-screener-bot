@@ -1,4 +1,4 @@
-import {TvScreener} from "../../../src/services/tvScreenerService";
+import {TvScreenerService} from "../../../src/services/tradingViewScreenerService";
 import {tScreenerParameters} from "../../../src/types/screeners";
 import {tvScreenerConfig} from "../../../src/config/tvScreenerConfig";
 import fetch, {Response} from "node-fetch";
@@ -12,8 +12,9 @@ jest.mock("node-fetch");
  */
 describe("TV Screener Service Class", () => {
   // Variables
-  const baseParameters: tScreenerParameters = {
+  const mockedParameters: tScreenerParameters = {
     name: "test screener",
+    filters: [],
     market: "crypto",
     attribute: "RSI",
     matcher: "==",
@@ -36,10 +37,10 @@ describe("TV Screener Service Class", () => {
   }
 
   // Subject Under Test
-  const sut = new TvScreener(baseParameters);
+  const sut = new TvScreenerService(mockedParameters);
 
   it("should store the passed parameters into a parameters class variable", () => {
-    expect(sut.parameters).toBe(baseParameters);
+    expect(sut.parameters).toBe(mockedParameters);
   })
 
   it("should process the parameters into a request and store it into a request class variable", () => {
@@ -80,7 +81,6 @@ describe("TV Screener Service Class", () => {
   it("should be able to fetch data and store the 'data' part in responseData class variable", async () => {
     const mockedFetch = async () => {
       const res:Response = new Response();
-      res.status = 200;
       res.json = jest.fn().mockReturnValue(JSON.stringify(mockedResponse))
       return res
     }
@@ -90,7 +90,7 @@ describe("TV Screener Service Class", () => {
   })
 
   it("should be able to fetch data and throw an error if it encounters a problem", async () => {
-    let expectedEndpoint = tvScreenerConfig.endpoints[baseParameters.market];
+    let expectedEndpoint = tvScreenerConfig.endpoints[mockedParameters.market];
     let expectedErrorMsg = "MOCKED ERROR"
     const mockedError = async () => {
       throw new Error(expectedErrorMsg);

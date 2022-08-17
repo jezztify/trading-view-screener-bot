@@ -8,7 +8,7 @@ type tScreenerParameters = {
   value: string;
   timeframe: "15" | "30" | "60" | "1D";
   interval: 10000 | 120000 | 300000 | 900000;
-  filters?: tScreenerRequestFilter[]
+  filters: tScreenerRequestFilter[]
 }
 
 type tScreenerRequestFilter = {
@@ -47,7 +47,7 @@ type tScreenerResponseData = {
     number,
     number
   ]
-}[] | null
+}
 
 export { 
   tScreenerParameters,

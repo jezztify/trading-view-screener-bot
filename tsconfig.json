@@ -19,6 +19,7 @@
     "paths": {
       "@screener-utils/*": ["src/utils/*"],
       "@screener-services/*": ["src/services/*"],
+      "@screener-managers/*": ["src/managers/*"],
       "@screener-types/*": ["src/types/*"],
       "@screener-config/*": ["src/config/*"],
       "~/*": ["*"]

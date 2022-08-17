@@ -66,7 +66,8 @@
       "@screener-utils/*": "<rootDir>/src/utils/",
       "@screener-services/*": "<rootDir>/src/services/",
       "@screener-types/*": "<rootDir>/src/types/",
-      "@screener-config/*": "<rootDir>/src/config/"
+      "@screener-config/*": "<rootDir>/src/config/",
+      "@screener-managers/*": "<rootDir>/src/managers/"
     },
     "preset": "ts-jest",
     "testEnvironment": "node"

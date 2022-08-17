@@ -1,1 +1,1 @@
-export * from "../services/tvScreenerService"
+export * from "../services/tradingViewScreenerService"
