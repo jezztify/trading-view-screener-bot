@@ -10,7 +10,7 @@
     "dev": "ts-node-esm src/main.ts",
     "start": "node build/main.js",
     "watch": "nodemon --exec ts-node-esm src/main.ts",
-    "test": "jest",
+    "test": "jest --coverage -reporters='default'",
     "build": "tsc"
   },
   "dependencies": {
