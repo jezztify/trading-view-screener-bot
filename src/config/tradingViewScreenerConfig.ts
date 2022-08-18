@@ -4,10 +4,14 @@ type tTvScreenerConfig = {
   }
 }
 
-export const tvScreenerConfig: tTvScreenerConfig = {
+const cTradingViewScreener: tTvScreenerConfig = {
   "endpoints": {
     crypto: "https://scanner.tradingview.com/crypto/scan",
     forex: "https://scanner.tradingview.com/forex/scan",
     stocks: "https://scanner.tradingview.com/global/scan"
   }
+}
+
+export {
+  cTradingViewScreener
 }

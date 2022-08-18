@@ -1,5 +1,5 @@
 import {Logging} from "../../../src/utils/logger";
-import {tLogLevel} from "../../../src/types/loggers.type";
+import {tLogLevel} from "../../../src/types/loggers";
 /**
  * Mocks
  */

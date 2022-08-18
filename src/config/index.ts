@@ -1,1 +1,1 @@
-export * from "./tvScreenerConfig";
+export * from "./tradingViewScreenerConfig";

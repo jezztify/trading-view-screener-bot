@@ -1,5 +1,5 @@
 import {DiscordService} from "../../../src/services/discordService";
-import {tScreenerParameters, tScreenerResponseData} from "../../../src/types/screeners.type";
+import {tTradingViewScreenerParameters, tScreenerResponseData} from "../../../src/types/tradingViewScreenerTypes";
 /**
  * Mocks
  */
@@ -9,7 +9,7 @@ import {tScreenerParameters, tScreenerResponseData} from "../../../src/types/scr
 */
 describe("Discord Service Class", () => {
   // Variables
-  const mockedParameters: tScreenerParameters = {
+  const mockedParameters: tTradingViewScreenerParameters = {
     name: "test screener",
     filters: [],
     market: "crypto",

@@ -1,6 +1,6 @@
-import {TvScreenerService} from "../../../src/services/tradingViewScreenerService";
-import {tScreenerParameters} from "../../../src/types/screeners.type";
-import {tvScreenerConfig} from "../../../src/config/tvScreenerConfig";
+import {TradingViewScreenerService} from "../../../src/services/tradingViewScreenerService";
+import {tTradingViewScreenerParameters} from "../../../src/types/tradingViewScreenerTypes";
+import {cTradingViewScreener} from "../../../src/config/tradingViewScreenerConfig";
 import fetch, {Response} from "node-fetch";
 /**
  * Mocks
@@ -12,7 +12,7 @@ jest.mock("node-fetch");
  */
 describe("TV Screener Service Class", () => {
   // Variables
-  const mockedParameters: tScreenerParameters = {
+  const mockedParameters: tTradingViewScreenerParameters = {
     name: "test screener",
     filters: [],
     market: "crypto",
@@ -37,7 +37,7 @@ describe("TV Screener Service Class", () => {
   }
 
   // Subject Under Test
-  const sut = new TvScreenerService(mockedParameters);
+  const sut = new TradingViewScreenerService(mockedParameters);
 
   it("should store the passed parameters into a parameters class variable", () => {
     expect(sut.parameters).toBe(mockedParameters);
@@ -90,7 +90,7 @@ describe("TV Screener Service Class", () => {
   })
 
   it("should be able to fetch data and throw an error if it encounters a problem", async () => {
-    let expectedEndpoint = tvScreenerConfig.endpoints[mockedParameters.market];
+    let expectedEndpoint = cTradingViewScreener.endpoints[mockedParameters.market];
     let expectedErrorMsg = "MOCKED ERROR"
     const mockedError = async () => {
       throw new Error(expectedErrorMsg);

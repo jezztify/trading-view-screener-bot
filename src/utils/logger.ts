@@ -1,5 +1,5 @@
 import log4js, {Logger} from "log4js";
-import {tLogLevel} from "@screener-types/loggers.type";
+import {tLogLevel} from "@screener-types/loggers";
 interface iLogging {
   createLogger(name: string, logLevel?: tLogLevel): Logger
 }

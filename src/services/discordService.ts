@@ -1,28 +1,28 @@
 
-import { tScreenerParameters, tScreenerResponseData } from "@screener-types/screeners.type";
+import { tTradingViewScreenerParameters, tScreenerResponseData } from "@screener-types/tradingViewScreenerTypes";
 import {Interaction, EmbedBuilder} from "discord.js";
 
 interface iDiscordService {
   sendReplyMessage(message: EmbedBuilder, discordInteraction: Interaction): Promise<void>;
-  formEmbeddedMessage(data:tScreenerResponseData, parameters: tScreenerParameters ): EmbedBuilder;
+  formEmbeddedMessage(data:tScreenerResponseData, parameters: tTradingViewScreenerParameters ): EmbedBuilder;
 }
 
 class DiscordService implements iDiscordService {
   sendReplyMessage = async (message: any, discordInteraction: Interaction) => {
-      try {
-        let msg = message;
-        if(message instanceof EmbedBuilder) {
-          msg = {
-            embeds: [message]
-          }
+    try {
+      let msg = message;
+      if(message instanceof EmbedBuilder) {
+        msg = {
+          embeds: [message]
         }
-        discordInteraction.channel?.send(msg);
-      } catch(e) {
-        throw new Error(`An error occurred while sending ${message} to Discord: ${e}`)
       }
+      discordInteraction.channel?.send(msg);
+    } catch(e) {
+      throw new Error(`An error occurred while sending ${message} to Discord: ${e}`)
+    }
   }
 
-  formEmbeddedMessage = (data: tScreenerResponseData, parameters: tScreenerParameters) => {
+  formEmbeddedMessage = (data: tScreenerResponseData, parameters: tTradingViewScreenerParameters) => {
     let shouldIncludePercent = false;
     if(["change"].includes(parameters.attribute)) {
       shouldIncludePercent = true;

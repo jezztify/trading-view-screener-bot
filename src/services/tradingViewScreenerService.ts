@@ -1,14 +1,14 @@
-import { tvScreenerConfig } from "@screener-config/tvScreenerConfig";
-import { tScreenerResponseData, tScreenerParameters, tScreenerRequest } from "@screener-types/screeners.type"
+import { cTradingViewScreener } from "@screener-config/tradingViewScreenerConfig";
+import { tScreenerResponseData, tTradingViewScreenerParameters, tScreenerRequest } from "@screener-types/tradingViewScreenerTypes"
 import fetch from "node-fetch";
 
 
 
-interface iTvScreenerService {
-  parameters: tScreenerParameters;
+interface iTradingViewScreenerService {
+  parameters: tTradingViewScreenerParameters;
   request: tScreenerRequest;
   responseData: tScreenerResponseData[] | null;
-  formRequest(parameters: tScreenerParameters): tScreenerRequest;
+  formRequest(parameters: tTradingViewScreenerParameters): tScreenerRequest;
   fetchData(): Promise<void>;
 }
 
@@ -22,15 +22,15 @@ const matcherOperator: {[k:string]:string}= {
   "Crosses Below": "crosses_below"
 }
 
-class TvScreenerService implements iTvScreenerService {
-  parameters: tScreenerParameters;
+class TradingViewScreenerService implements iTradingViewScreenerService {
+  parameters: tTradingViewScreenerParameters;
   request: tScreenerRequest;
   responseData: tScreenerResponseData[] | null;
 
   /**
    * TODO: Add Logger object injection
    */
-  constructor(parameters: tScreenerParameters) {
+  constructor(parameters: tTradingViewScreenerParameters) {
     this.responseData = null;
     this.parameters = parameters;
     this.request = this.formRequest(
@@ -38,7 +38,7 @@ class TvScreenerService implements iTvScreenerService {
     );
   }
 
-  formRequest = (parameters: tScreenerParameters): tScreenerRequest => {
+  formRequest = (parameters: tTradingViewScreenerParameters): tScreenerRequest => {
     // Initialize request body
     let request:tScreenerRequest = {
       filter: [],
@@ -95,7 +95,7 @@ class TvScreenerService implements iTvScreenerService {
     if(this.parameters.market === "forex" || this.parameters.market === "crypto") {
       endpointType = this.parameters.market;
     }
-    let endpoint = tvScreenerConfig.endpoints[endpointType];
+    let endpoint = cTradingViewScreener.endpoints[endpointType];
     
     // Fetch data
     try {
@@ -119,5 +119,5 @@ class TvScreenerService implements iTvScreenerService {
 }
 
 export {
-  TvScreenerService
+  TradingViewScreenerService
 }
