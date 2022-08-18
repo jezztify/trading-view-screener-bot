@@ -3,12 +3,19 @@ import { tTradingViewScreenerParameters, tScreenerResponseData } from "@screener
 import {Interaction, EmbedBuilder} from "discord.js";
 
 interface iDiscordService {
+  discordInteraction: Interaction;
   sendReplyMessage(message: EmbedBuilder, discordInteraction: Interaction): Promise<void>;
   formEmbeddedMessage(data:tScreenerResponseData, parameters: tTradingViewScreenerParameters ): EmbedBuilder;
 }
 
 class DiscordService implements iDiscordService {
-  sendReplyMessage = async (message: any, discordInteraction: Interaction) => {
+  discordInteraction: Interaction;
+
+  constructor(discordInteraction: Interaction) {
+    this.discordInteraction = discordInteraction
+  }
+
+  sendReplyMessage = async (message: any) => {
     try {
       let msg = message;
       if(message instanceof EmbedBuilder) {
@@ -16,7 +23,7 @@ class DiscordService implements iDiscordService {
           embeds: [message]
         }
       }
-      discordInteraction.channel?.send(msg);
+      this.discordInteraction.channel?.send(msg);
     } catch(e) {
       throw new Error(`An error occurred while sending ${message} to Discord: ${e}`)
     }

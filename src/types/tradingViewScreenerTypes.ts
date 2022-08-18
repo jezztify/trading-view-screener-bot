@@ -1,3 +1,6 @@
+import { DiscordService } from "@screener-services/discordService";
+import { TradingViewScreenerService } from "@screener-services/tradingViewScreenerService";
+
 type tMarkets = "crypto" |
                       "forex" |
                       "america" |
@@ -107,9 +110,15 @@ type tScreenerResponseData = {
   ]
 }
 
+type tScreener = {
+  discordService: DiscordService,
+  tradingViewScreenerService: TradingViewScreenerService
+}
+
 export { 
   tTradingViewScreenerParameters,
   tScreenerRequest,
   tScreenerResponseData,
-  tMarkets
+  tMarkets,
+  tScreener
 }

@@ -1,12 +1,32 @@
+import { Interaction } from "discord.js";
 import {DiscordService} from "../../../src/services/discordService";
 import {tTradingViewScreenerParameters, tScreenerResponseData} from "../../../src/types/tradingViewScreenerTypes";
+import DiscordMock from "../../mocks/discordMock";
 /**
  * Mocks
  */
+const mockedCommand = {
+  "id": "config",
+  "name": "config",
+  "type": 1,
+  "options": [
+    {
+      "type": 1,
+      "name": "set",
+      "options": [{
+        "value": "en",
+        "type": 3,
+        "name": "lang"
+      }],
+    }
+  ]
+};
+const mockedDiscord = new DiscordMock(mockedCommand);
+const mockedInteraction = mockedDiscord.getInteraction() as Interaction;
 
 /**
-* Main Test
-*/
+ * Main Test
+ */
 describe("Discord Service Class", () => {
   // Variables
   const mockedParameters: tTradingViewScreenerParameters = {
@@ -29,7 +49,7 @@ describe("Discord Service Class", () => {
   }
 
   // Subject Under Test
-  const sut = new DiscordService();
+  const sut = new DiscordService(mockedInteraction);
 
   it("should not add % sign when forming embedded messages for indicators that do not need them.", () => {
     let embeddedMessage = sut.formEmbeddedMessage(mockedResponseData, mockedParameters);
