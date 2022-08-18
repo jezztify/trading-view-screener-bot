@@ -70,7 +70,6 @@
       "@screener-config/*": "<rootDir>/src/config/",
       "@screener-managers/*": "<rootDir>/src/managers/"
     },
-    "preset": "ts-jest",
-    "testEnvironment": "node"
+    "preset": "ts-jest"
   }
 }
