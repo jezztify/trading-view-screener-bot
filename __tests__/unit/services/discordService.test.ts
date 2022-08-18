@@ -1,13 +1,12 @@
 import {DiscordService} from "../../../src/services/discordService";
-import {tScreenerParameters, tScreenerResponseData} from "../../../src/types/screeners";
-import {Discord} from "discordx";
+import {tScreenerParameters, tScreenerResponseData} from "../../../src/types/screeners.type";
 /**
  * Mocks
  */
 
- /**
-  * Main Test
-  */
+/**
+* Main Test
+*/
 describe("Discord Service Class", () => {
   // Variables
   const mockedParameters: tScreenerParameters = {

@@ -1,5 +1,5 @@
 
-import { tScreenerParameters, tScreenerResponseData } from "@screener-types/screeners";
+import { tScreenerParameters, tScreenerResponseData } from "@screener-types/screeners.type";
 import {Interaction, EmbedBuilder} from "discord.js";
 
 interface iDiscordService {
@@ -16,9 +16,9 @@ class DiscordService implements iDiscordService {
             embeds: [message]
           }
         }
-        discordInteraction.channel?.send(message);
+        discordInteraction.channel?.send(msg);
       } catch(e) {
-        throw new Error(`An error occurred while sending a message to Discord: ${e}`)
+        throw new Error(`An error occurred while sending ${message} to Discord: ${e}`)
       }
   }
 

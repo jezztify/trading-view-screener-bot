@@ -10,7 +10,7 @@
     "dev": "ts-node-esm src/main.ts",
     "start": "node build/main.js",
     "watch": "nodemon --exec ts-node-esm src/main.ts",
-    "test": "jest --coverage -reporters='default'"
+    "test": "jest"
   },
   "dependencies": {
     "@discordx/importer": "^1.1.10",

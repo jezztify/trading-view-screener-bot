@@ -1,1 +1,1 @@
-export * from "./screeners";
+export * from "./screeners.type";

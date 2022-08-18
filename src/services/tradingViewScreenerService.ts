@@ -1,5 +1,5 @@
 import { tvScreenerConfig } from "@screener-config/tvScreenerConfig";
-import { tScreenerResponseData, tScreenerParameters, tScreenerRequest } from "@screener-types/screeners"
+import { tScreenerResponseData, tScreenerParameters, tScreenerRequest } from "@screener-types/screeners.type"
 import fetch from "node-fetch";
 
 

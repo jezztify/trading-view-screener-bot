@@ -1,5 +1,5 @@
 import {TvScreenerService} from "../../../src/services/tradingViewScreenerService";
-import {tScreenerParameters} from "../../../src/types/screeners";
+import {tScreenerParameters} from "../../../src/types/screeners.type";
 import {tvScreenerConfig} from "../../../src/config/tvScreenerConfig";
 import fetch, {Response} from "node-fetch";
 /**

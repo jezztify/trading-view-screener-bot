@@ -1,4 +1,4 @@
-import { markets } from "./markets"; "@screener-types/markets"
+import { markets } from "./markets.type"; "@screener-types/markets"
 
 type tScreenerParameters = {
   name: string;
