@@ -65,7 +65,7 @@ type tMarkets = "crypto" |
 type tTradingViewScreenerParameters = {
   name: string;
   market: tMarkets;
-  attribute: "SMA20" | "SMA50" | "SMA100" | "RSI" | "change";
+  attribute: "SMA20" | "SMA50" | "SMA100" | "RSI" | "change" | "volume" | "relative_volume_10d_calc" | "relative_volume_intraday";
   matcher: ">" | ">=" | "==" | "<" | "<=" | "Crosses Above" | "Crosses Below" | "equal" | "match";
   value: string;
   timeframe: "15" | "30" | "60" | "1D";
