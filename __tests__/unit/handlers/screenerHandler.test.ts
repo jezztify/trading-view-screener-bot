@@ -1,5 +1,8 @@
 import {ScreenerHandler} from "../../../src/handlers/screenerHandler";
 import {tTradingViewScreenerParameters} from "../../../src/types/tradingViewScreenerTypes";
+import { DiscordService } from "../../../src/services/discordService";
+import { TradingViewScreenerService } from "../../../src/services/tradingViewScreenerService";
+import { createLogger } from "../../../src/utils/logging";
 import {Interaction} from "discord.js";
 import DiscordMock from "../../mocks/discordMock";
 
@@ -40,9 +43,25 @@ describe("Screener Handler Class", () => {
     interval: 10000
   }
   let sut = new ScreenerHandler()
-  it("should generate a screener handler object successfully", () => {
+  it("should generate a screener handler object successfully without a logger object", () => {
     let testScreener = sut.generate(mockedInteraction, mockedParameters);
     expect(testScreener).toHaveProperty("discordService");
     expect(testScreener).toHaveProperty("tradingViewScreenerService");
+    expect(testScreener).toHaveProperty("logging");
+    expect(testScreener.discordService).toBeInstanceOf(DiscordService);
+    expect(testScreener.tradingViewScreenerService).toBeInstanceOf(TradingViewScreenerService);
+    expect(testScreener.logging.category).toContain("ScreenerHandler_");
+  })
+
+  it("should generate a screener handler object successfully with a logger object", () => {
+    let testLogger = createLogger("testLogger");
+    let testScreener = sut.generate(mockedInteraction, mockedParameters, testLogger);
+    expect(testScreener).toHaveProperty("discordService");
+    expect(testScreener).toHaveProperty("tradingViewScreenerService");
+    expect(testScreener).toHaveProperty("logging");
+    expect(testScreener.discordService).toBeInstanceOf(DiscordService);
+    expect(testScreener.tradingViewScreenerService).toBeInstanceOf(TradingViewScreenerService);
+    expect(testScreener.logging.category).toBe("testLogger");
   })
 })
+

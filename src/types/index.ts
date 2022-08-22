@@ -1,2 +1,2 @@
 export * from "./tradingViewScreenerTypes";
-export * from "./loggers";
+export * from "./logging";

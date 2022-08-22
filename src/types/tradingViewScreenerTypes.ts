@@ -1,5 +1,6 @@
 import { DiscordService } from "@screener-services/discordService";
 import { TradingViewScreenerService } from "@screener-services/tradingViewScreenerService";
+import { Logger } from "log4js";
 
 type tMarkets = "crypto" |
                       "forex" |
@@ -112,7 +113,8 @@ type tScreenerResponseData = {
 
 type tScreener = {
   discordService: DiscordService,
-  tradingViewScreenerService: TradingViewScreenerService
+  tradingViewScreenerService: TradingViewScreenerService,
+  logging: Logger
 }
 
 export { 
