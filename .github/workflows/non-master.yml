@@ -1,0 +1,24 @@
+name: NON-MASTER BRANCH WORKFLOW
+on:
+  pull_request:
+    branches-ignore: [ master ]
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16.x'
+    - name: Install dependencies
+      run: npm install
+    - name: Run Unit Tests
+      run: npm run test
+    - name: Archive test-results
+      uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: coverage
+        path: coverage/
+        retention-days: 30
